@@ -55,8 +55,8 @@ main (int argc, char *argv[])
   Config::SetDefault ("ns3::TcpSocketState::EnablePacing", BooleanValue (isPacingEnabled));
 
   string deviceName("eth0");
-  string remoteAddress("192.168.100.100");
-  string localGateway("192.168.0.1");
+  string remoteAddress("193.167.100.100");
+  string localGateway("193.167.0.1");
 
   Ipv4Mask localMask("255.255.255.0");
 
@@ -99,7 +99,7 @@ main (int argc, char *argv[])
   NS_LOG_INFO("Create IPv4 Interface");
   Ptr<Ipv4> ipv4 = client->GetObject<Ipv4>();
   uint32_t interface = ipv4->AddInterface(device);
-  Ipv4InterfaceAddress address = Ipv4InterfaceAddress("192.168.0.100", localMask);
+  Ipv4InterfaceAddress address = Ipv4InterfaceAddress("193.167.0.100", localMask);
   ipv4->AddAddress(interface, address);
   ipv4->SetMetric(interface, 1);
   ipv4->SetUp(interface);
@@ -139,6 +139,9 @@ main (int argc, char *argv[])
   FlowMonitorHelper flowmon;
   Ptr<FlowMonitor> monitor = flowmon.InstallAll ();
 
+  helper->EnablePcapAll("/logs/quic", true);
+  helper->EnableAsciiAll("/logs/quic.tr");
+
   NS_LOG_INFO ("Run Simulation.");
   Simulator::Stop (Seconds (10));
   Simulator::Run ();
@@ -149,10 +152,6 @@ main (int argc, char *argv[])
   for (std::map<FlowId, FlowMonitor::FlowStats>::const_iterator i = stats.begin (); i != stats.end (); ++i)
   {
       Ipv4FlowClassifier::FiveTuple t = classifier->FindFlow (i->first);
-      if (t.sourceAddress == "10.1.1.2")
-      {
-          continue;
-      }
       std::cout << "Flow " << i->first  << " (" << t.sourceAddress << " -> " << t.destinationAddress << ")\n";
       std::cout << "  Tx Packets: " << i->second.txPackets << "\n";
       std::cout << "  Tx Bytes:   " << i->second.txBytes << "\n";
